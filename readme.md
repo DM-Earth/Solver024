@@ -18,6 +18,16 @@ This is a simple 24 points solver written in rust.
 
 `+, -, *, /`
 
-Operators that will be supported in the future:
+With super mode:
 
 `>>, <<, ^, &`
+
+## Usage Commands
+
+### Toggle super mode
+
+`super`
+
+### Exit
+
+`exit`, `quit`

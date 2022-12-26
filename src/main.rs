@@ -3,6 +3,8 @@
 pub mod base;
 pub mod math;
 
+use std::process;
+
 use base::Component;
 use base::Expression;
 
@@ -10,36 +12,39 @@ use base::SimpleComponent;
 use math::permute;
 
 fn main() {
-    println!("Enter 4 numbers and split them using spaces, or use 'exit' 'quit' to quit: ");
+    println!("Enter 4 numbers and split them using spaces.");
+
+    let mut super_mode = false;
+
     loop {
         let input = input_string();
         if input == "exit" || input == "quit" {
             break;
         }
+        if input == "super" {
+            super_mode = if super_mode { false } else { true };
+            println!("Super mode {}", if super_mode {"enabled"} else {"disabled"});
+            continue;
+        }
         let mut numbers: Vec<i32> = input
             .split_whitespace()
             .map(|s| s.parse().unwrap())
             .collect();
-        let mut exit = false;
         let msg = "Invalid input, please enter 4 numbers between 1 and 13";
         for i in numbers.iter() {
             if *i < 1 || *i > 13 {
                 println!("{}", msg);
-                exit = true;
-                break;
+                process::exit(1);
             }
         }
         if numbers.len() != 4 {
             println!("{}", msg);
-            exit = true;
-        }
-        if exit {
-            continue;
+            process::exit(1);
         }
 
         numbers.sort();
 
-        let solutions = solve(&numbers);
+        let solutions = solve(&numbers, &super_mode, &16);
 
         if solutions.len() == 0 {
             println!("No solutions found");
@@ -51,7 +56,7 @@ fn main() {
     }
 }
 
-fn solve(numbers_raw: &Vec<i32>) -> Vec<Expression> {
+fn solve(numbers_raw: &Vec<i32>, super_mode: &bool, limit: &usize) -> Vec<Expression> {
     let nums = {
         let mut temp = Vec::new();
         for i in numbers_raw {
@@ -60,48 +65,57 @@ fn solve(numbers_raw: &Vec<i32>) -> Vec<Expression> {
         temp
     };
     let mut solutions: Vec<Expression> = Vec::new();
-    let operators = ['+', '-', '*', '/'];
+    let mut operators = ['+', '-', '*', '/'].to_vec();
+    if *super_mode {
+        operators.append(&mut ['^', '>', '<', '|', '&'].to_vec());
+    }
     for item in permute(nums) {
-        for operator in operators {
-            for operator1 in operators {
-                for operator2 in operators {
-                    push_if_absent(
-                        &mut solutions,
-                        Expression::create(
-                            Component::create(item[0], operator1, item[1]),
-                            operator,
-                            Component::create(item[2], operator2, item[3]),
-                        ),
+        for operator in operators.iter() {
+            for operator1 in operators.iter() {
+                for operator2 in operators.iter() {
+                    let exp1 = Expression::create(
+                        Component::create(item[0], *operator1, item[1]),
+                        *operator,
+                        Component::create(item[2], *operator2, item[3]),
                     );
-                    push_if_absent(
-                        &mut solutions,
-                        Expression::create(
-                            Component::of_simple(item[0]),
-                            operator,
-                            Component::create(
-                                item[1],
-                                operator1,
-                                SimpleComponent::create(
-                                    item[2].get_num(),
-                                    operator2,
-                                    item[3].get_num(),
-                                ),
+                    let exp2 = Expression::create(
+                        Component::of_simple(item[0]),
+                        *operator,
+                        Component::create(
+                            item[1],
+                            *operator1,
+                            SimpleComponent::create(
+                                item[2].get_num(),
+                                *operator2,
+                                item[3].get_num(),
                             ),
                         ),
                     );
+                    if limit <= &1 {
+                        if is_24(&exp1) {
+                            return vec![exp1];
+                        }
+                        if is_24(&exp2) {
+                            return vec![exp2];
+                        }
+                    } else {
+                        if is_24(&exp1) {
+                            push_if_absent(&mut solutions, exp1);
+                        }
+                        if is_24(&exp2) {
+                            push_if_absent(&mut solutions, exp2);
+                        }
+                    }
+
+                    if solutions.len() >= *limit {
+                        return solutions;
+                    }
                 }
             }
         }
     }
 
-    let mut results: Vec<Expression> = Vec::new();
-    for (i, _item) in solutions.iter().enumerate() {
-        if is_24(&solutions[i]) {
-            results.push(solutions[i].clone());
-        }
-    }
-
-    results
+    solutions
 }
 
 fn push_if_absent<T>(vec: &mut Vec<T>, item: T)

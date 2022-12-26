@@ -54,7 +54,7 @@ impl SimpleComponent {
                 number1,
                 number2,
                 op,
-            } => format!("({} {} {})", number1, op, number2),
+            } => format!("({} {} {})", number1, map_op_string(op), number2),
         }
     }
 }
@@ -75,7 +75,7 @@ impl PartialEq for SimpleComponent {
                     op: op2,
                 },
             ) => {
-                if op1 == op2 && op1 == &'/' {
+                if op1 == op2 && is_op_ordered(op1) {
                     return n11 == n21 && n12 == n22;
                 }
                 math::compare_arr(&[n11, n12], &[n21, n22]) && op1 == op2
@@ -171,7 +171,12 @@ impl Component {
                 number1,
                 number2,
                 op,
-            } => format!("({} {} {})", number1.to_string(), op, number2.to_string()),
+            } => format!(
+                "({} {} {})",
+                number1.to_string(),
+                map_op_string(op),
+                number2.to_string()
+            ),
         }
     }
 }
@@ -192,7 +197,7 @@ impl PartialEq for Component {
                     op: op2,
                 },
             ) => {
-                if op1 == op2 && op1 == &'/' {
+                if op1 == op2 && is_op_ordered(op1) {
                     return n11 == n21 && n12 == n22;
                 }
                 math::compare_arr(&[n11, n12], &[n21, n22]) && op1 == op2
@@ -257,7 +262,7 @@ impl Expression {
         format!(
             "{} {} {}",
             self.component1.to_string(),
-            self.op,
+            map_op_string(&self.op),
             self.component2.to_string()
         )
     }
@@ -265,7 +270,7 @@ impl Expression {
 
 impl PartialEq for Expression {
     fn eq(&self, other: &Self) -> bool {
-        if self.op == other.op && self.op == '/' {
+        if self.op == other.op && is_op_ordered(&self.op) {
             return self.component1.eq(&other.component1) && self.component2.eq(&other.component2);
         }
         math::compare_arr(
@@ -303,6 +308,32 @@ fn solve_simple(number1: &f64, number2: &f64, op: &char) -> Option<f64> {
                 Some(number1 / number2)
             }
         }
+        '^' => Some((*number1 as i32 ^ *number2 as i32).into()),
+        '&' => Some((*number1 as i32 & *number2 as i32).into()),
+        '|' => Some((*number1 as i32 | *number2 as i32).into()),
+        '>' => match (*number1 as u32).checked_shr(*number2 as u32) {
+            Some(n) => Some(n.into()),
+            None => None,
+        }
+        '<' => match (*number1 as u32).checked_shl(*number2 as u32) {
+            Some(n) => Some(n.into()),
+            None => None,
+        }
         _ => None,
+    }
+}
+
+fn is_op_ordered(op: &char) -> bool {
+    match op {
+        '<' | '>' | '/' => true,
+        _ => false,
+    }
+}
+
+fn map_op_string(op: &char) -> String {
+    match op {
+        '>' => String::from(">>"),
+        '<' => String::from("<<"),
+        _ => op.to_string(),
     }
 }
