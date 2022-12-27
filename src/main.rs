@@ -4,9 +4,7 @@ pub mod base;
 pub mod math;
 
 use std::process;
-use std::sync::mpsc;
-use std::thread;
-use std::time::Duration;
+use std::time::Instant;
 
 use base::Component;
 use base::Expression;
@@ -57,35 +55,19 @@ fn main() {
 
         numbers.sort();
 
-        let (tx, rx) = mpsc::channel();
-        let (txb, rxb) = mpsc::channel();
-
-        thread::spawn(move || {
-            let mut i: u64 = 0;
-            loop {
-                if rxb.try_recv().is_ok() {
-                    tx.send(i).unwrap();
-                    break;
-                }
-                thread::sleep(Duration::from_micros(1));
-                i += 1;
-                if rxb.try_recv().is_ok() {
-                    tx.send(i).unwrap();
-                    break;
-                }
-            }
-        });
-
+        let start = Instant::now();
         let solutions = solve(&numbers, &super_mode, &max);
-        txb.send(true).unwrap();
-        let dur = rx.recv().unwrap();
         if solutions.len() == 0 {
             println!("No solutions found");
         } else {
             for (i, _item) in solutions.iter().enumerate() {
                 println!("{}", solutions[i].to_string());
             }
-            println!("Found {} solutions in {} ms", solutions.len(), (dur as f64) * 0.001);
+            println!(
+                "Found {} solutions in {} ms",
+                solutions.len(),
+                (start.elapsed().as_micros() as f64) * 0.001
+            );
         }
     }
 }
