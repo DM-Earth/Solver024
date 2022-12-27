@@ -333,11 +333,23 @@ fn solve_simple(number1: &f64, number2: &f64, op: &char) -> Option<f64> {
         '&' => Some((*number1 as i32 & *number2 as i32).into()),
         '|' => Some((*number1 as i32 | *number2 as i32).into()),
         '>' => match (*number1 as u32).checked_shr(*number2 as u32) {
-            Some(n) => Some(n.into()),
+            Some(n) => {
+                if number1 >= &1.0 && number2 >= &1.0 {
+                    Some(n.into())
+                } else {
+                    None
+                }
+            }
             None => None,
         },
         '<' => match (*number1 as u32).checked_shl(*number2 as u32) {
-            Some(n) => Some(n.into()),
+            Some(n) => {
+                if number1 >= &1.0 && number2 >= &1.0 {
+                    Some(n.into())
+                } else {
+                    None
+                }
+            }
             None => None,
         },
         _ => None,
