@@ -22,7 +22,7 @@ fn main() {
             break;
         }
         if input == "super" {
-            super_mode = if super_mode { false } else { true };
+            super_mode = !super_mode;
             println!("Super mode {}", if super_mode {"enabled"} else {"disabled"});
             continue;
         }
