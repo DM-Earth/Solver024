@@ -21,7 +21,7 @@ fn main() {
     loop {
         let input = input_string();
         if input == "exit" || input == "quit" {
-            break;
+            process::exit(1);
         }
         if input == "super" {
             super_mode = !super_mode;
@@ -41,20 +41,27 @@ fn main() {
             .split_whitespace()
             .map(|s| s.parse().unwrap())
             .collect();
+
+        let mut jump = false;
         let msg = "Invalid input, please enter 4 numbers between 1 and 13";
         for i in numbers.iter() {
             if *i < 1 || *i > 13 {
                 println!("{}", msg);
-                process::exit(1);
+                jump = true;
             }
         }
         if numbers.len() != 4 {
             println!("{}", msg);
-            process::exit(1);
+            jump = true;
+        }
+        if input == "" {
+            jump = true;
+        }
+        if jump {
+            continue;
         }
 
         numbers.sort();
-
         let start = Instant::now();
         let solutions = solve(&numbers, &super_mode, &max);
         if solutions.len() == 0 {
