@@ -7,9 +7,12 @@ pub mod solver;
 use std::process;
 use std::time::Instant;
 
+use clipboard::{ClipboardContext, ClipboardProvider};
+
 fn main() {
     println!("Enter 4 numbers and split them using spaces.");
 
+    let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
     let mut super_mode = false;
     let mut max: usize = 16;
 
@@ -70,6 +73,7 @@ fn main() {
                 solutions.len(),
                 (start.elapsed().as_micros() as f64) * 0.001
             );
+            ctx.set_contents(solutions[0].to_string()).unwrap();
         }
     }
 }
