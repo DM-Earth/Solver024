@@ -15,6 +15,7 @@ fn main() {
     println!("Enter 4 numbers and split them using spaces.");
 
     let mut super_mode = false;
+    let mut max: usize = 16;
 
     loop {
         let input = input_string();
@@ -24,6 +25,12 @@ fn main() {
         if input == "super" {
             super_mode = !super_mode;
             println!("Super mode {}", if super_mode {"enabled"} else {"disabled"});
+            continue;
+        }
+        if input.starts_with("max ") {
+            let max_str = input.split_whitespace().nth(1).unwrap();
+            max = max_str.parse().unwrap();
+            println!("Max solutions set to {}", max);
             continue;
         }
         let mut numbers: Vec<i32> = input
@@ -44,7 +51,7 @@ fn main() {
 
         numbers.sort();
 
-        let solutions = solve(&numbers, &super_mode, &16);
+        let solutions = solve(&numbers, &super_mode, &max);
 
         if solutions.len() == 0 {
             println!("No solutions found");
