@@ -4,6 +4,9 @@ pub mod base;
 pub mod math;
 
 use std::process;
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
 
 use base::Component;
 use base::Expression;
@@ -24,7 +27,10 @@ fn main() {
         }
         if input == "super" {
             super_mode = !super_mode;
-            println!("Super mode {}", if super_mode {"enabled"} else {"disabled"});
+            println!(
+                "Super mode {}",
+                if super_mode { "enabled" } else { "disabled" }
+            );
             continue;
         }
         if input.starts_with("max ") {
@@ -51,14 +57,31 @@ fn main() {
 
         numbers.sort();
 
-        let solutions = solve(&numbers, &super_mode, &max);
+        let (tx, rx) = mpsc::channel();
+        let (txb, rxb) = mpsc::channel();
 
+        thread::spawn(move || {
+            let mut i: u64 = 0;
+            loop {
+                thread::sleep(Duration::from_millis(1));
+                i += 1;
+                if rxb.try_recv().is_ok() {
+                    tx.send(i).unwrap();
+                    break;
+                }
+            }
+        });
+
+        let solutions = solve(&numbers, &super_mode, &max);
+        txb.send(true).unwrap();
+        let dur = rx.recv().unwrap();
         if solutions.len() == 0 {
             println!("No solutions found");
         } else {
             for (i, _item) in solutions.iter().enumerate() {
                 println!("{}", solutions[i].to_string());
             }
+            println!("Found {} solutions in {} ms", solutions.len(), dur);
         }
     }
 }
@@ -67,7 +90,7 @@ fn solve(numbers_raw: &Vec<i32>, super_mode: &bool, limit: &usize) -> Vec<Expres
     let nums = {
         let mut temp = Vec::new();
         for i in numbers_raw {
-            temp.push(SimpleComponent::Number(i.clone()));
+            temp.push(SimpleComponent::Number(*i));
         }
         temp
     };

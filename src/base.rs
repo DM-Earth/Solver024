@@ -28,19 +28,19 @@ impl SimpleComponent {
 
     pub fn get_num(&self) -> i32 {
         match self {
-            SimpleComponent::Number(n) => n.clone(),
+            SimpleComponent::Number(n) => *n,
             _ => -1,
         }
     }
 
     pub fn calculate(&self) -> Result<f64, &str> {
         match self {
-            SimpleComponent::Number(n) => Ok(n.clone() as f64),
+            SimpleComponent::Number(n) => Ok(*n as f64),
             SimpleComponent::SimpleExp {
                 number1,
                 number2,
                 op,
-            } => match solve_simple(&(number1.clone() as f64), &(number2.clone() as f64), &op) {
+            } => match solve_simple(&(*number1 as f64), &(*number2 as f64), &op) {
                 Some(n) => Ok(n),
                 None => Err("Divide by zero"),
             },
@@ -88,15 +88,15 @@ impl PartialEq for SimpleComponent {
 impl Clone for SimpleComponent {
     fn clone(&self) -> SimpleComponent {
         match self {
-            SimpleComponent::Number(n) => SimpleComponent::Number(n.clone()),
+            SimpleComponent::Number(n) => SimpleComponent::Number(*n),
             SimpleComponent::SimpleExp {
                 number1,
                 number2,
                 op,
             } => SimpleComponent::SimpleExp {
-                number1: number1.clone(),
-                number2: number2.clone(),
-                op: op.clone(),
+                number1: *number1,
+                number2: *number2,
+                op: *op,
             },
         }
     }
@@ -139,7 +139,7 @@ impl Component {
 
     pub fn calculate(&self) -> Result<f64, &str> {
         match self {
-            Component::Single(n) => Ok(match n.clone().calculate() {
+            Component::Single(n) => Ok(match n.calculate() {
                 Ok(n) => n,
                 _ => return Err("err"),
             } as f64),
@@ -210,15 +210,15 @@ impl PartialEq for Component {
 impl Clone for Component {
     fn clone(&self) -> Component {
         match self {
-            Component::Single(n) => Component::Single(n.clone()),
+            Component::Single(n) => Component::Single(*n),
             Component::Exp {
                 number1,
                 number2,
                 op,
             } => Component::Exp {
-                number1: number1.clone(),
-                number2: number2.clone(),
-                op: op.clone(),
+                number1: *number1,
+                number2: *number2,
+                op: *op,
             },
         }
     }
