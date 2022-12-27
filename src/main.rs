@@ -86,16 +86,15 @@ fn solve(numbers_raw: &Vec<i32>, super_mode: &bool, limit: &usize) -> Vec<Expres
         operators.append(&mut ['^', '>', '<', '|', '&'].to_vec());
     }
     for item1 in permute(nums) {
+        let items = if *super_mode {
+            math::roll_vec(item1.clone())
+        } else {
+            [item1.clone()].to_vec()
+        };
         for operator in operators.iter() {
             for operator1 in operators.iter() {
                 for operator2 in operators.iter() {
-                    for item in if *super_mode {
-                        math::roll_vec(item1.clone())
-                    } else {
-                        [item1.clone()].to_vec()
-                    }
-                    .iter()
-                    {
+                    for item in items.iter() {
                         let mut exps = Vec::new();
 
                         exps.push(Expression::create(
@@ -116,6 +115,35 @@ fn solve(numbers_raw: &Vec<i32>, super_mode: &bool, limit: &usize) -> Vec<Expres
                                 ),
                             ),
                         ));
+
+                        exps.push(Expression::create(
+                            Component::create(
+                                SimpleComponent::create(
+                                    item[0].get_num(),
+                                    *operator,
+                                    item[1].get_num(),
+                                ),
+                                *operator1,
+                                item[2],
+                            ),
+                            *operator2,
+                            Component::of_simple(item[3]),
+                        ));
+
+                        exps.push(Expression::create(
+                            Component::of_simple(item[0]),
+                            *operator,
+                            Component::create(
+                                item[1],
+                                *operator1,
+                                SimpleComponent::create(
+                                    item[2].get_num(),
+                                    *operator2,
+                                    item[3].get_num(),
+                                ),
+                            ),
+                        ));
+
                         for exp in exps {
                             if limit <= &1 {
                                 if is_24(&exp) {
