@@ -85,46 +85,52 @@ fn solve(numbers_raw: &Vec<i32>, super_mode: &bool, limit: &usize) -> Vec<Expres
     if *super_mode {
         operators.append(&mut ['^', '>', '<', '|', '&'].to_vec());
     }
-    for item in permute(nums) {
+    for item1 in permute(nums) {
         for operator in operators.iter() {
             for operator1 in operators.iter() {
                 for operator2 in operators.iter() {
-                    let exp1 = Expression::create(
-                        Component::create(item[0], *operator1, item[1]),
-                        *operator,
-                        Component::create(item[2], *operator2, item[3]),
-                    );
-                    let exp2 = Expression::create(
-                        Component::of_simple(item[0]),
-                        *operator,
-                        Component::create(
-                            item[1],
-                            *operator1,
-                            SimpleComponent::create(
-                                item[2].get_num(),
-                                *operator2,
-                                item[3].get_num(),
-                            ),
-                        ),
-                    );
-                    if limit <= &1 {
-                        if is_24(&exp1) {
-                            return vec![exp1];
-                        }
-                        if is_24(&exp2) {
-                            return vec![exp2];
-                        }
+                    for item in if *super_mode {
+                        math::roll_vec(item1.clone())
                     } else {
-                        if is_24(&exp1) {
-                            push_if_absent(&mut solutions, exp1);
-                        }
-                        if is_24(&exp2) {
-                            push_if_absent(&mut solutions, exp2);
-                        }
+                        [item1.clone()].to_vec()
                     }
+                    .iter()
+                    {
+                        let mut exps = Vec::new();
 
-                    if solutions.len() >= *limit {
-                        return solutions;
+                        exps.push(Expression::create(
+                            Component::create(item[0], *operator1, item[1]),
+                            *operator,
+                            Component::create(item[2], *operator2, item[3]),
+                        ));
+                        exps.push(Expression::create(
+                            Component::of_simple(item[0]),
+                            *operator,
+                            Component::create(
+                                item[1],
+                                *operator1,
+                                SimpleComponent::create(
+                                    item[2].get_num(),
+                                    *operator2,
+                                    item[3].get_num(),
+                                ),
+                            ),
+                        ));
+                        for exp in exps {
+                            if limit <= &1 {
+                                if is_24(&exp) {
+                                    return vec![exp];
+                                }
+                            } else {
+                                if is_24(&exp) {
+                                    push_if_absent(&mut solutions, exp);
+                                }
+                            }
+                        }
+
+                        if solutions.len() >= *limit {
+                            return solutions;
+                        }
                     }
                 }
             }

@@ -1,3 +1,5 @@
+use crate::base::SimpleComponent;
+
 pub fn permute<T: Clone>(nums: Vec<T>) -> Vec<Vec<T>> {
     let mut vec = Vec::new();
     if nums.len() == 1 {
@@ -26,6 +28,56 @@ pub fn permute<T: Clone>(nums: Vec<T>) -> Vec<Vec<T>> {
         }
     }
 
+    vec
+}
+
+pub fn roll_vec(nums: Vec<SimpleComponent>) -> Vec<Vec<SimpleComponent>> {
+    let mut vec = Vec::new();
+    if nums.len() != 4 {
+        vec.push(nums);
+    } else {
+        vec.push(nums.clone());
+        vec.push(vec![nums[0].reverse(), nums[1], nums[2], nums[3]]);
+        vec.push(vec![nums[0], nums[1].reverse(), nums[2], nums[3]]);
+        vec.push(vec![nums[0], nums[1], nums[2].reverse(), nums[3]]);
+        vec.push(vec![nums[0], nums[1], nums[2], nums[3].reverse()]);
+        vec.push(vec![nums[0].reverse(), nums[1].reverse(), nums[2], nums[3]]);
+        vec.push(vec![nums[0].reverse(), nums[1], nums[2].reverse(), nums[3]]);
+        vec.push(vec![nums[0], nums[1], nums[2], nums[3].reverse()]);
+        vec.push(vec![
+            nums[0].reverse(),
+            nums[1].reverse(),
+            nums[2].reverse(),
+            nums[3],
+        ]);
+        vec.push(vec![
+            nums[0].reverse(),
+            nums[1].reverse(),
+            nums[2],
+            nums[3].reverse(),
+        ]);
+        vec.push(vec![
+            nums[0].reverse(),
+            nums[1],
+            nums[2].reverse(),
+            nums[3].reverse(),
+        ]);
+        vec.push(vec![nums[0], nums[1].reverse(), nums[2].reverse(), nums[3]]);
+        vec.push(vec![nums[0], nums[1].reverse(), nums[2], nums[3].reverse()]);
+        vec.push(vec![nums[0], nums[1], nums[2].reverse(), nums[3].reverse()]);
+        vec.push(vec![
+            nums[0],
+            nums[1].reverse(),
+            nums[2].reverse(),
+            nums[3].reverse(),
+        ]);
+        vec.push(vec![
+            nums[0].reverse(),
+            nums[1].reverse(),
+            nums[2].reverse(),
+            nums[3].reverse(),
+        ]);
+    }
     vec
 }
 

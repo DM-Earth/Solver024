@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use crate::math;
 
 pub enum SimpleComponent {
@@ -10,6 +12,13 @@ pub enum SimpleComponent {
 }
 
 impl SimpleComponent {
+    pub fn reverse(self) -> SimpleComponent {
+        match self {
+            SimpleComponent::Number(n) => SimpleComponent::Number(-n),
+            _ => self,
+        }
+    }
+
     pub fn create_simple(n: i32) -> SimpleComponent {
         SimpleComponent::Number(n)
     }
@@ -103,6 +112,15 @@ impl Clone for SimpleComponent {
 }
 
 impl Copy for SimpleComponent {}
+
+impl Debug for SimpleComponent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Number(_arg0) => f.debug_tuple("Number").field(&self.to_string()).finish(),
+            _ => f.debug_struct("SimpleExp").field("exp", &self.to_string()).finish(),
+        }
+    }
+}
 
 pub enum Component {
     Single(SimpleComponent),
@@ -314,11 +332,11 @@ fn solve_simple(number1: &f64, number2: &f64, op: &char) -> Option<f64> {
         '>' => match (*number1 as u32).checked_shr(*number2 as u32) {
             Some(n) => Some(n.into()),
             None => None,
-        }
+        },
         '<' => match (*number1 as u32).checked_shl(*number2 as u32) {
             Some(n) => Some(n.into()),
             None => None,
-        }
+        },
         _ => None,
     }
 }
