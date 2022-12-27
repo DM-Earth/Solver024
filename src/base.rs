@@ -117,7 +117,10 @@ impl Debug for SimpleComponent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Number(_arg0) => f.debug_tuple("Number").field(&self.to_string()).finish(),
-            _ => f.debug_struct("SimpleExp").field("exp", &self.to_string()).finish(),
+            _ => f
+                .debug_struct("SimpleExp")
+                .field("exp", &self.to_string())
+                .finish(),
         }
     }
 }
