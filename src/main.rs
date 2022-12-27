@@ -63,7 +63,11 @@ fn main() {
         thread::spawn(move || {
             let mut i: u64 = 0;
             loop {
-                thread::sleep(Duration::from_millis(1));
+                if rxb.try_recv().is_ok() {
+                    tx.send(i).unwrap();
+                    break;
+                }
+                thread::sleep(Duration::from_micros(1));
                 i += 1;
                 if rxb.try_recv().is_ok() {
                     tx.send(i).unwrap();
@@ -81,7 +85,7 @@ fn main() {
             for (i, _item) in solutions.iter().enumerate() {
                 println!("{}", solutions[i].to_string());
             }
-            println!("Found {} solutions in {} ms", solutions.len(), dur);
+            println!("Found {} solutions in {} ms", solutions.len(), (dur as f64) * 0.001);
         }
     }
 }
