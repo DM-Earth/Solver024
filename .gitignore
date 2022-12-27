@@ -2,3 +2,4 @@
 /.vscode
 /target
 solver-024
+Cargo.lock
