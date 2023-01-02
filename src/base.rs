@@ -27,7 +27,7 @@ impl SimpleComponent {
         SimpleComponent::SimpleExp {
             number1: n1,
             number2: n2,
-            op: op,
+            op,
         }
     }
 
@@ -143,7 +143,7 @@ impl Component {
         Component::Exp {
             number1: n1,
             number2: n2,
-            op: op,
+            op,
         }
     }
 
