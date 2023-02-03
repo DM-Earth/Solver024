@@ -17,7 +17,7 @@ fn main() {
     loop {
         let input = input_string();
         if input == "exit" || input == "quit" {
-            process::exit(1);
+            process::exit(0);
         }
         if input == "super" {
             super_mode = !super_mode;
